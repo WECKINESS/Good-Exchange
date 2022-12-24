@@ -56,13 +56,22 @@ class Login ():
         name = self.entryName.get()
         pwd = self.entryPwd.get()
 
+        f = open('apply.txt', 'r', encoding='utf-8')
+        fi = f.readlines()
+        dic_unview = {}
+        for lst in fi:
+            d = str(lst).strip('\n').split(",")
+            print(d)
+            dic_unview[d[0]] = d[1]  
+        f.close()
+
         f = open('info.txt', 'r', encoding='utf-8')
         fi = f.readlines()
         dic = {}
         for lst in fi:
             d = str(lst).strip('\n').split(",")
             print(d)
-            dic[d[0]] = d[1]        
+            dic[d[0]] = d[1] 
             
         # OK按钮事件处理函数
         def OK():
@@ -85,8 +94,18 @@ class Login ():
             labelPrompt.place(x=90, y=250, width=90, height=30)
             buttonOkk = tk.Button(self.root, text='ok', font=("微软雅黑", 14), activeforeground='#ff0000', command=Log)
             buttonOkk.place(x=500, y=300, width=80, height=30)
-
-
+        elif name in dic_unview:
+            labelMessage = tk.Label(self.root, text="Message                                                              "
+                                                    "                                X       ", fg='white', bg='blue',
+                                        font=("Times New Roman", 16),
+                                        justify=tk.RIGHT, anchor='w', width=600)
+            labelMessage.place(x=0, y=200, width=600, height=30)
+            self.root['height'] = 350
+            labelPrompt = tk.Label(self.root, text='管理员未审核', font=("微软雅黑", 14), justify=tk.RIGHT, anchor='w',
+                                        width=100)
+            labelPrompt.place(x=90, y=250, width=180, height=30)
+            buttonOkk = tk.Button(self.root, text='ok', font=("微软雅黑", 14), activeforeground='#ff0000', command=OK)
+            buttonOkk.place(x=500, y=300, width=80, height=30)
         else:
             labelMessage = tk.Label(self.root, text="Message                                                              "
                                                     "                                X       ", fg='white', bg='blue',

@@ -10,6 +10,11 @@ class commandPage():
         self.conn = sqlite3.connect('helping.db')
         self.cur = self.conn.cursor()
         
+        #获取所有物品类别信息，储存为self.kinds
+        self.cur.execute("select name from sqlite_master where type='table'")
+        self.kinds = self.cur.fetchall()
+        self.kinds=[line[0] for line in self.kinds]
+
         self.root['height'] = 300
         self.root['width'] = 600
 
@@ -59,13 +64,14 @@ class commandPage():
                 file_info = open('info.txt','a')
                 file_info.write(self.fi)
                 file_info.close()
+                self.labelPrompt.config(text ='已同意')
             else:
                 #self.fi='请使用查看按钮更新申请'
                 self.labelPrompt.config(text ='请使用查看按钮更新申请')
 
         def Deny():
             f = open('apply.txt', 'r', encoding='utf-8')
-            self.l = f.readline()
+            self.l = f.readline() 
             f.close()
             if self.l == self.fi and self.l:
                 file = open('apply.txt', 'r', encoding='utf-8')
@@ -76,6 +82,7 @@ class commandPage():
                 file_new = open('apply.txt','w')
                 file_new.writelines(lines)
                 file_new.close()
+                self.labelPrompt.config(text ='已拒绝')
 
             else:
                 self.labelPrompt.config(text ='请使用查看按钮更新申请')
@@ -88,7 +95,7 @@ class commandPage():
             self.buttonDeny.destroy()
             self.labelMessage.destroy()
 
-        self.labelMessage = tk.Label(self.root, text='Message', fg='white', bg='blue', font=("Times New Roman", 16),
+        self.labelMessage = tk.Label(self.root, text='新用户审核', fg='white', bg='blue', font=("Times New Roman", 16),
                                         justify=tk.RIGHT, anchor='w', width=80)
         self.labelMessage.place(x=0, y=200, width=600, height=30)
         self.root['height'] = 400
@@ -116,13 +123,13 @@ class commandPage():
                 self.txt = '请输入物品名称'
             elif not pp:
                 self.txt = '请输入物品属性'
+            elif name in self.kinds:
+                self.txt = '物品类型已存在'                
             else:
-                text = str(pp).strip().spilt(',')
-                prop = ''
-                for i in text:
-                    prop = prop + text[i]+' text, '
+                for i in range(0,len(pp)):
+                    prop = prop + pp[i]+' text, '
                 prop = prop[0:len(prop)-2]
-                self.cur.execute('CREATE TABLE not exists "%s"("%s")'%(name,pp))
+                self.cur.execute('CREATE TABLE not exists %s(%s)'%(name,prop))
                 self.conn.commit()
 
         def OK():
@@ -132,8 +139,9 @@ class commandPage():
             self.entryItem.destroy()
             self.labelB.destroy()
             self.entryproperty.destroy()
-            self.buttonAdd.destroy()
+            self.buttonAddC.destroy()
             self.labelC.destroy()
+            self.buttonOkk.destroy()
 
         self.labelMessage = tk.Label(self.root, text='新建物品类型', fg='white', bg='blue', font=("Times New Roman", 16),
                                         justify=tk.RIGHT, anchor='w', width=80)
@@ -152,8 +160,8 @@ class commandPage():
         self.entryproperty = tk.Entry(self.root, width=80, textvariable=self.varproperty)
         self.entryproperty.place(x=250, y=300, width=250, height=30)       
 
-        self.buttonAdd = tk.Button(self.root, text='添加', font=("微软雅黑", 14),activeforeground='#ff0000', command=Add)
-        self.buttonAdd.place(x=150, y=350, width=80, height=30)
+        self.buttonAddC = tk.Button(self.root, text='添加', font=("微软雅黑", 14),activeforeground='#ff0000', command=Add)
+        self.buttonAddC.place(x=200, y=350, width=80, height=30)
 
         self.buttonOkk = tk.Button(self.root, text='ok', font=("微软雅黑", 14), activeforeground='#ff0000', command=OK)
         self.buttonOkk.place(x=500, y=350, width=80, height=30)
@@ -168,6 +176,7 @@ class commandPage():
             self.root['height'] = 300
             self.labelA.destroy()  # 删除控件
             self.labelMessage.destroy()
+            self.buttonOkk.destroy()
 
         self.labelMessage = tk.Label(self.root, text='Message', fg='white', bg='blue', font=("Times New Roman", 16),
                                         justify=tk.RIGHT, anchor='w', width=80)

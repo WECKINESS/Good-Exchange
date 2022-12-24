@@ -22,8 +22,8 @@ class AdminPage():
             self.kindl = self.kindl + self.kinds[i] +','
         self.kindl = self.kindl + self.kinds[len(self.kinds)-1]
 
-        self.lb_putout = tk.Label(self.root,text=self.out,font=("微软雅黑", 14), justify=tk.RIGHT, anchor='e', width=80)
-        self.lb_putout.place(x=50, y=150, width=500, height=30)  
+        self.lb_putout = tk.Label(self.root,text=self.out,font=("微软雅黑", 14), justify=tk.RIGHT, anchor='w', width=80)
+        self.lb_putout.place(x=50, y=150, width=500, height=50)  
 
         self.bn_add = tk.Button(self.root,text='添加',command=self.add)
         self.bn_add.place(x=50, y=50, width=150, height=30)
@@ -65,7 +65,6 @@ class AdminPage():
                     self.lb_putout.config(text= '请输入物品属性') 
                 else:
                     d = str(attri).split("，")
-                    txt_s = ''
                     txt_v = ''
                     for i in range(0,len(d)-1):
                         txt_v = txt_v + '"'+ d[i] + ' ",'
@@ -212,9 +211,22 @@ class AdminPage():
                     self.lb_putout.config(text = '请输入物品名')
                 else:
                     self.out=''
-                    self.cur.execute('select * from %s where name like "%%%s%%"' %(kd,it)) #如何同时在说明中匹配？
+                    self.cur.execute('select * from %s where name like "%%%s%%"' %(kd,it)) 
                     for record in self.cur.fetchall():self.out = self.out + str(record) + '\n' 
-                    self.lb_putout.config(text=self.out) 
+                    self.cur.execute('select * from %s where clarify like "%%%s%%"' %(kd,it)) 
+                    for record in self.cur.fetchall():self.out = self.out + str(record) + '\n' 
+                    # 获取物品属性名
+                    self.cur.execute('pragma table_info({})'.format(kd))
+                    attribute = self.cur.fetchall()
+                    attribute = [x[1] for x in attribute]
+                    txt_attribute = ''
+                    for i in range(0,len(attribute)):
+                        txt_attribute = txt_attribute +'，'+attribute[i]
+                    txt_attribute = txt_attribute[1:len(txt_attribute)]
+
+                    self.out = txt_attribute +'\n'+ self.out
+                    self.labellist.config(text=self.out) 
+                    self.lb_putout.config(text = '^-^')
             else:
                 self.lb_putout.config(text = '物品种类不存在！')
 
@@ -229,11 +241,12 @@ class AdminPage():
             self.buttonVisit.destroy()
             self.labelMessage.destroy()
             self.buttonOkk.destroy()
+            self.labellist.destroy()
         
         self.labelMessage = tk.Label(self.root, text='查找', fg='white', bg='blue', font=("Times New Roman", 16),
                                         justify=tk.RIGHT, anchor='w', width=80)
         self.labelMessage.place(x=0, y=200, width=800, height=30)
-        self.root['height'] = 450
+        self.root['height'] = 550
 
         self.labelChoices = tk.Label (self.root, text='物品种类有：'+ self.kindl  ,font=("微软雅黑", 14), justify=tk.RIGHT, anchor='e', width=80)
         self.labelChoices.place(x=50, y=250, width=160, height=30)
@@ -249,6 +262,9 @@ class AdminPage():
         self.entrykey = tk.Entry(self.root, width=80, textvariable=self.varkey)
         self.entrykey.place(x=250, y=350, width=160, height=30) 
 
+        self.labellist = tk.Label (self.root, text='list', justify=tk.RIGHT, anchor='w', width=80)
+        self.labellist.place(x=100, y=450, width=600, height=100)  
+
         self.buttonVisit = tk.Button(self.root, text='查找', command=search)
         self.buttonVisit.place(x=50, y=400, width=100, height=30)
         self.buttonOkk = tk.Button(self.root, text='ok', font=("微软雅黑", 14), activeforeground='#ff0000', command=OK)
@@ -263,6 +279,16 @@ class AdminPage():
             if kd in self.kinds:
                 self.cur.execute('select * from %s' %kd)
                 for record in self.cur.fetchall():self.out = self.out + str(record) + '\n' 
+                # 获取物品属性名
+                self.cur.execute('pragma table_info({})'.format(kd))
+                attribute = self.cur.fetchall()
+                attribute = [x[1] for x in attribute]
+                txt_attribute = ''
+                for i in range(0,len(attribute)):
+                    txt_attribute = txt_attribute +'，'+attribute[i]
+                txt_attribute = txt_attribute[1:len(txt_attribute)]
+
+                self.out = txt_attribute +'\n'+ self.out
                 self.lb_putout.config(text='物品清单已显示') 
                 self.labellist.config(text=self.out) 
             else:
@@ -287,7 +313,7 @@ class AdminPage():
 
         self.labelChoices = tk.Label (self.root, text='物品种类有：'+ self.kindl ,font=("微软雅黑", 14), justify=tk.RIGHT, anchor='e', width=80)
         self.labelChoices.place(x=50, y=250, width=160, height=30)
-        self.labelChoose = tk.Label (self.root, text='请输入想查询的物品类别',font=("微软雅黑", 14), justify=tk.RIGHT, anchor='e', width=80)
+        self.labelChoose = tk.Label (self.root, text='请输入想显示的物品类别',font=("微软雅黑", 14), justify=tk.RIGHT, anchor='e', width=80)
         self.labelChoose.place(x=50, y=300, width=160, height=30)
         self.varkd = tk.StringVar(self.root, value='')
         self.entrykd = tk.Entry(self.root, width=80, textvariable=self.varkd)
@@ -295,7 +321,7 @@ class AdminPage():
         self.buttonVisit = tk.Button(self.root, text='显示物品清单', command=list)
         self.buttonVisit.place(x=50, y=400, width=100, height=30)
 
-        self.labellist = tk.Label (self.root, text='list', justify=tk.RIGHT, anchor='e', width=80)
+        self.labellist = tk.Label (self.root, text='list', justify=tk.RIGHT, anchor='w', width=80)
         self.labellist.place(x=280, y=300, width=500, height=150)   
 
         self.buttonOkk = tk.Button(self.root, text='ok', font=("微软雅黑", 14), activeforeground='#ff0000', command=OK)

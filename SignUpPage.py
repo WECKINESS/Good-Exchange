@@ -58,6 +58,10 @@ class SignUpPage():
         f = open('info.txt', 'r', encoding='utf-8')
         fi = f.readlines()
         dic = {}
+        for lst in fi:
+            d = str(lst).strip('\n').split(",")
+            print(d)
+            dic[d[0]] = d[1]   
 
         # OK按钮事件处理函数
         def Re():
@@ -67,8 +71,16 @@ class SignUpPage():
 
         def OK():
             self.page.destroy()
-
-        if self.name in dic :
+        if self.name == '' or self.pwd == '' or self.add == '' or self.con == '':
+            self.labelMessage = tk.Label(self.page, text='Message', fg='white', bg='blue', font=("Times New Roman", 16),
+                                        justify=tk.RIGHT, anchor='w', width=80)
+            self.labelMessage.place(x=0, y=200, width=600, height=30)
+            self.page['height'] = 350
+            self.labelPrompt = tk.Label(self.page, text='请填写用户信息', font=("微软雅黑", 14), justify=tk.RIGHT, anchor='e', width=80)
+            self.labelPrompt.place(x=90, y=250, width=90, height=30)
+            self.buttonOkk = tk.Button(self.page, text='ok', font=("微软雅黑", 14), activeforeground='#ff0000', command=Re)
+            self.buttonOkk.place(x=500, y=300, width=80, height=30)            
+        elif self.name in dic :
             self.labelMessage = tk.Label(self.page, text='Message', fg='white', bg='blue', font=("Times New Roman", 16),
                                         justify=tk.RIGHT, anchor='w', width=80)
             self.labelMessage.place(x=0, y=200, width=600, height=30)
